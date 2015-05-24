@@ -6,7 +6,8 @@ namespace SP21
 {
     public static class Coordinate
     {
-        private const int Maxx = 80;
+        public const int MaxX = 80;
+        public const int MaxY = 24;
 
         [DebuggerDisplay("X={X}; Y={Y};")]
         public struct Point
@@ -15,6 +16,14 @@ namespace SP21
             private int _y;
             private bool _normalizing;
             private bool _normalized;
+
+            public Point(int x, int y)
+            {
+                _x = x;
+                _y = y;
+                _normalizing = false;
+                _normalized = false;
+            }
 
             public int X
             {
@@ -51,8 +60,8 @@ namespace SP21
                     return;
                 }
                 _normalizing = true;
-                Y += (X + Maxx) / Maxx - 1;
-                X = (X + Maxx) % Maxx;
+                Y += (X + MaxX) / MaxX - 1;
+                X = (X + MaxX) % MaxX;
                 _normalized = true;
                 _normalizing = false;
             }
@@ -115,6 +124,7 @@ namespace SP21
         {
             Left, Right, Up, Down
         }
+
 
         public static Direction[] GetDirection(Point from, Point to)
         {

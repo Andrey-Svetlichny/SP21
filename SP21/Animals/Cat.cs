@@ -8,7 +8,7 @@ namespace SP21.Animals
     {
         private readonly Mouse _mouse;
         private static Random _random;
-        private const string skinNornal = "=0=", skinOzverin = "<->", skinDied = "---";
+        private const string SkinNornal = "=0=", SkinGame = "<->", SkinShadow = "---";
 
         public enum ModeEnum
         {
@@ -24,13 +24,13 @@ namespace SP21.Animals
         /// </summary>
         public int OzverinRemains = 0;
 
-        public Cat(GameState state, Coordinate.Point coord, Mouse mouse)
-            : base(state, coord)
+        public Cat(View view, GameState state, Coordinate.Point coord, Mouse mouse)
+            : base(view, state, coord)
         {
             _random = new Random();
             _mouse = mouse;
             Mode = ModeEnum.Normal;
-            Skin = skinNornal;
+            Skin = SkinNornal;
         }
 
         public override void Step()
@@ -50,7 +50,7 @@ namespace SP21.Animals
                 // мышь на точке выхода из дома
                 Dir = Level.GateOutDirection;
             }
-            else if (IsAtHome())
+            else if (State.Level.IsHome(Coord))
             {
                 // мышь в доме
 
@@ -114,13 +114,13 @@ namespace SP21.Animals
             switch (Mode)
             {
                 case ModeEnum.Normal:
-                    Skin = skinNornal;
+                    Skin = SkinNornal;
                     break;
                 case ModeEnum.Game:
-                    Skin = skinOzverin;
+                    Skin = SkinGame;
                     break;
                 case ModeEnum.Shadow:
-                    Skin = skinDied;
+                    Skin = SkinShadow;
                     break;
             }
 
@@ -134,23 +134,6 @@ namespace SP21.Animals
                 Mode = ModeEnum.Game;
                 OzverinRemains = Level.OzverinTime;
             }
-            
-        }
-
-        protected bool CanMove(Coordinate.Direction direction)
-        {
-            var allowedChars = new[] { ' ', '.', '@' };
-            var charsForward = CharsForward(direction).ToList();
-            //if (charsForward.Count() == 3)
-            //{
-            //    charsForward.RemoveAt(1);
-            //}
-            return charsForward.All(c => allowedChars.Any(allowed => c == allowed));
-        }
-
-        private bool IsAtHome()
-        {
-            return Coord.X > 35 && Coord.X < 43 && Coord.Y > 10 && Coord.Y < 13;
         }
     }
 }

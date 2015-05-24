@@ -5,13 +5,15 @@ namespace SP21.Animals
 {
     abstract class Animal
     {
-        protected GameState State;
+        protected readonly View View;
+        protected readonly GameState State;
         public Coordinate.Point Coord, InitialCoord;
         public Coordinate.Direction? Dir = null;
         protected string Skin;
 
-        protected Animal(GameState state, Coordinate.Point coord)
+        protected Animal(View view, GameState state, Coordinate.Point coord)
         {
+            View = view;
             State = state;
             InitialCoord = coord;
             Coord = coord;
@@ -19,12 +21,12 @@ namespace SP21.Animals
 
         public void Draw()
         {
-            State.Level.Draw(Coord.Copy(-1, 0), Skin);
+            View.Draw(Coord.Copy(-1, 0), Skin);
         }
 
         public virtual void Hide()
         {
-            State.Level.Draw(Coord.Copy(-1, 0), 3);
+            View.Draw(Coord.Copy(-1, 0), Skin.Length);
         }
 
         private void Move()
@@ -45,6 +47,12 @@ namespace SP21.Animals
             Coord = InitialCoord;
             Dir = null;
             Draw();
+        }
+
+        protected bool CanMove(Coordinate.Direction direction)
+        {
+            var allowedChars = new[] { ' ', '.', '@' };
+            return CharsForward(direction).All(c => allowedChars.Any(allowed => c == allowed));
         }
 
         protected IEnumerable<char> CharsForward(Coordinate.Direction direction)

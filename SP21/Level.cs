@@ -12,21 +12,32 @@ namespace SP21
     {
         StringBuilder[] _lines;
 
+        public char this[Coordinate.Point p]
+        {
+            get
+            {
+                return _lines[p.Y][p.X];
+            }
+            set
+            {
+                _lines[p.Y][p.X] = value;
+            }
+        }
+
         /// <summary>
         /// Точка входа в дом.
         /// </summary>
-        public readonly Coordinate.Point GateIn = new Coordinate.Point { X = 39, Y = 9 };
+        public readonly Coordinate.Point GateIn = new Coordinate.Point(39, 9);
 
         /// <summary>
         /// Направление входа в дом.
         /// </summary>
         public const Coordinate.Direction GateInDirection = Coordinate.Direction.Down;
 
-
         /// <summary>
         /// Точка выхода из дома
         /// </summary>
-        public readonly Coordinate.Point GateOut = new Coordinate.Point { X = 39, Y = 11 };
+        public readonly Coordinate.Point GateOut = new Coordinate.Point(39, 11);
 
         /// <summary>
         /// Направление выхода из дома.
@@ -36,17 +47,17 @@ namespace SP21
         /// <summary>
         /// Начальное положение мыши.
         /// </summary>
-        public readonly Coordinate.Point InitialMouseCoordinate = new Coordinate.Point { X = 39, Y = 16 };
+        public readonly Coordinate.Point InitialMouseCoordinate = new Coordinate.Point(39, 16);
 
         /// <summary>
         /// Начальное положение кошек.
         /// </summary>
         public readonly Coordinate.Point[] InitialCatsCoordinate =
             {
-                new Coordinate.Point {X = 37, Y = 11},
-                new Coordinate.Point {X = 41, Y = 11},
-                new Coordinate.Point {X = 37, Y = 12},
-                new Coordinate.Point {X = 41, Y = 12},
+                new Coordinate.Point(37, 11),
+                new Coordinate.Point(41, 11),
+                new Coordinate.Point(37, 12),
+                new Coordinate.Point(41, 12)
             };
 
         /// <summary>
@@ -54,13 +65,15 @@ namespace SP21
         /// </summary>
         public const int OzverinTime = 144;
 
+        /// <summary>
+        /// Количество оставшихся хлебных крошек.
+        /// </summary>
+        public int Breadcrumbs { get; private set; }
 
         public Level(int levelNum)
         {
             Load(levelNum);
         }
-
-        public int Breadcrumbs { get; private set; }
 
         private void Load(int level)
         {
@@ -81,64 +94,30 @@ namespace SP21
             Breadcrumbs = text.Count(f => f == '.');
         }
 
-        public void EatBreadcrumb()
+        public char EatBreadcrumb(Coordinate.Point point)
         {
-            Breadcrumbs--;
-        }
-
-        private char Get(Coordinate.Point point)
-        {
-            return _lines[point.Y][point.X];
-        }
-
-        public void Set(Coordinate.Point point, char c)
-        {
-            _lines[point.Y][point.X] = c;
+            var c = this[point];
+            this[point] = ' ';
+            if (c == '.')
+            {
+                Breadcrumbs--;
+            }
+            return c;
         }
 
         public IEnumerable<char> Get(Coordinate.Point point, int count)
         {
             for (int i = 0; i < count; i++)
             {
-                var ret = Get(point);
+                var ret = this[point];
                 point.X++;
                 yield return ret;
             }
         }
 
-        public string Read(Coordinate.Point point, int count)
+        public bool IsHome(Coordinate.Point p)
         {
-            return new string(Get(point, count).ToArray());
-        }
-
-        public void Write(Coordinate.Point point, string s)
-        {
-            for (int i = 0; i < s.Length; i++)
-            {
-                Set(point, s[i]);
-                point.X++;
-            }
-        }
-
-        public void Draw(Coordinate.Point point, string s)
-        {
-            Console.SetCursorPosition(point.X, point.Y);
-            Console.Write(s);
-        }
-
-        public void Draw(Coordinate.Point point, int length)
-        {
-            Console.SetCursorPosition(point.X, point.Y);
-            Console.Write(Read(point, length));
-        }
-
-        public void Draw()
-        {
-            for (int i = 0; i < _lines.Length; i++)
-            {
-                Console.SetCursorPosition(0, i);
-                Console.Write(_lines[i]);
-            }
+            return p.X > 35 && p.X < 43 && p.Y > 10 && p.Y < 13;
         }
     }
 }

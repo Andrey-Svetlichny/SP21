@@ -10,22 +10,23 @@ namespace SP21
     internal class GameActivity
     {
         GameState _state;
+        View _view;
         Mouse _mouse;
         readonly List<Cat> _cats = new List<Cat>();
 
         public void Show()
         {
 
-            // initilize
-            _state = new GameState();
+            // initialize
             int levelNum = 1;
-            _state.Level = new Level(levelNum);
-            _state.Level.Draw();
-            DrawLife();
+            _state = new GameState {Level = new Level(levelNum)};
+            _view = new View(_state);
+            _view.DrawLevel();
+            _view.DrawLife();
 
             // init mouse and cats
-            _mouse = new Mouse(_state, _state.Level.InitialMouseCoordinate);
-            _cats.AddRange(_state.Level.InitialCatsCoordinate.Select(o => new Cat(_state, o, _mouse)));
+            _mouse = new Mouse(_view, _state, _state.Level.InitialMouseCoordinate);
+            _cats.AddRange(_state.Level.InitialCatsCoordinate.Select(o => new Cat(_view, _state, o, _mouse)));
             _mouse.Cats = _cats;
          
             //_cats.ForEach(c => c.Draw());
@@ -43,6 +44,7 @@ namespace SP21
                     _mouse.WantMove((Coordinate.Direction) direction);
                 }
                 _mouse.Step();
+                _view.DrawScore();
                 CheckCatch();
                 _cats.ForEach(c => c.Step());
                 CheckCatch();
@@ -53,7 +55,7 @@ namespace SP21
                 {
                     // съедены все хлебные крошки
                     _state.Level = new Level(++levelNum);
-                    _state.Level.Draw();
+                    _view.DrawLevel();
                     // init mouse and cats
                     _mouse.Reset();
                     _cats.ForEach(c => c.Reset());
@@ -97,22 +99,12 @@ namespace SP21
             if (_cats.Exists(c => c.Mode == Cat.ModeEnum.Normal && c.Coord == _mouse.Coord))
             {
                 _state.Life--;
-                DrawLife();
+                _view.DrawLife();
                 _mouse.Die();
                 Thread.Sleep(1000);
                 _mouse.Reset();
                 _cats.ForEach(c => c.Reset());
             }
         }
-
-
-        private void DrawLife()
-        {
-            for (int i = 0; i < 10; i++)
-            {
-                _state.Level.Draw(new Coordinate.Point { X = 79, Y = i }, i < _state.Life - 1 ? "X" : " ");
-            }
-        }
-
     }
 }

@@ -1,17 +1,16 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace SP21.Animals
 {
     class Mouse : Animal
     {
-        private Coordinate.Direction? _nextDirection = null;
-        private const string skin1 = "<$>", skin2 = ">$<", skinDied = "+$+";
+        private Coordinate.Direction? _nextDirection;
+        private const string Skin1 = "<$>", Skin2 = ">$<", SkinDied = "+$+";
 
-        public Mouse(GameState state, Coordinate.Point coord)
-            : base(state, coord)
+        public Mouse(View view, GameState state, Coordinate.Point coord)
+            : base(view, state, coord)
         {
-            Skin = skin1;
+            Skin = Skin1;
         }
 
         public List<Cat> Cats { get; set; }
@@ -28,37 +27,34 @@ namespace SP21.Animals
             }
 
             base.Step();
-            Skin = Skin == skin1 ? skin2 : skin1;
-            var read = State.Level.Read(Coord.Copy(-1, 0), 3);
-            var scoreDiff = read.Count(c => c == '.');
-            State.Score += scoreDiff;
-            for (int i = 0; i < scoreDiff; i++)
-            {
-                State.Level.EatBreadcrumb();
-            }
-            if (read.Contains('@'))
-            {
-                Cats.ForEach(c => c.StartOzverinMode());
-            }
-            State.Level.Write(Coord.Copy(-1, 0), "   ");
-            State.Level.Draw(new Coordinate.Point { X = 36, Y = 18 }, string.Format("{0,6}", State.Score));
-        }
+            Skin = Skin == Skin1 ? Skin2 : Skin1;
 
-        protected bool CanMove(Coordinate.Direction direction)
-        {
-            var allowedChars = new[] { ' ', '.', '@' };
-            return CharsForward(direction).All(c => allowedChars.Any(allowed => c == allowed));
+            // съесть крошки, увеличить счет
+            var coords = new[] { Coord.Copy(-1, 0), Coord, Coord.Copy(+1, 0) };
+            foreach (var coord in coords)
+            {
+                switch (State.Level.EatBreadcrumb(coord))
+                {
+                    case '.': 
+                        State.Score++; 
+                        break;
+                    case '@':
+                        State.Score += 5; 
+                        Cats.ForEach(c => c.StartOzverinMode());
+                        break;
+                }
+            }
         }
 
         public void Die()
         {
-            Skin = skinDied;
+            Skin = SkinDied;
             Draw();
         }
 
         public override void Reset()
         {
-            Skin = skin1;
+            Skin = Skin1;
             base.Reset();
         }
 
