@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -17,98 +18,93 @@ namespace SP21.Animals
             Shadow
         }
 
-        public ModeEnum Mode;
+        private const int GameModeSkipStep = 4;
+
+        public ModeEnum Mode
+        {
+            get { return _mode; }
+            set
+            {
+                if (_mode != value)
+                {
+                    _mode = value;
+                    Dir = null;
+                }
+            }
+        }
+
 
         /// <summary>
         /// Осталось времени текущему озверину.
         /// </summary>
-        public int OzverinRemains = 0;
+        public int OzverinRemains;
+
+        private ModeEnum _mode;
 
         public Cat(View view, GameState state, Coordinate.Point coord, Mouse mouse)
             : base(view, state, coord)
         {
             _random = new Random();
             _mouse = mouse;
+            OzverinRemains = 0;
             Mode = ModeEnum.Normal;
             Skin = SkinNornal;
         }
 
         public override void Step()
         {
-            if (Mode == ModeEnum.Shadow && Coord == State.Level.GateIn)
+            switch (Mode)
             {
-                // тень мыши на точке входа в дом
-                Dir = Level.GateInDirection;
-            }
-            else if (Mode == ModeEnum.Shadow && Coord == State.Level.GateOut)
-            {
-                // тень мыши вошла в дом
-                Mode = ModeEnum.Normal;
-            }
-            else if (Coord == State.Level.GateOut)
-            {
-                // мышь на точке выхода из дома
-                Dir = Level.GateOutDirection;
-            }
-            else if (State.Level.IsHome(Coord))
-            {
-                // мышь в доме
-
-                // направления, в которых можно двигаться
-                var availableDirs = Enum.GetValues(typeof(Coordinate.Direction)).OfType<Coordinate.Direction>()
-                    .Where(CanMove).ToArray();
-
-                Dir = (Coordinate.Direction)availableDirs.GetValue(_random.Next(availableDirs.Length));
-            }
-            else
-            {
-                {
-                    // направления, в которых можно двигаться
-                    var availableDirs = Enum.GetValues(typeof(Coordinate.Direction)).OfType<Coordinate.Direction>()
-                        .Where(CanMove).ToArray();
-
-                    // исключаем направление, откуда только что пришли, если есть другие
-                    if (Dir != null && availableDirs.Length > 1)
+                case ModeEnum.Normal:
+                    if (Coord == State.Level.GateOut)
                     {
-                        availableDirs = availableDirs.Except(new[] { ((Coordinate.Direction)Dir).Reverse() }).ToArray();
+                        // мышь на точке выхода из дома
+                        Dir = Level.GateOutDirection;
                     }
-
-                    // направления к цели - на мышь / от озверевшей мыши / на дом (если кошка мертва)
-                    Coordinate.Direction[] targetDirs;
-                    if (Mode == ModeEnum.Shadow)
+                    else if (State.Level.IsHome(Coord))
                     {
-                        targetDirs = Coordinate.GetDirection(Coord, State.Level.GateIn);
+                        // мышь в доме
+                        var availableDirs = Enum.GetValues(typeof(Coordinate.Direction)).OfType<Coordinate.Direction>()
+                            .Where(CanMove).ToArray();
+                        Dir = (Coordinate.Direction)availableDirs.GetValue(_random.Next(availableDirs.Length));
                     }
                     else
                     {
-                        targetDirs = Coordinate.GetDirection(Coord, _mouse.Coord);
-                        if (Mode == ModeEnum.Game)
-                        {
-                            targetDirs = targetDirs.Select(o => o.Reverse()).ToArray();
-                        }
+                        SelectDirection(Coordinate.GetDirection(Coord, _mouse.Coord));
                     }
+                    break;
 
-                    // предпочтительные направления - в сторону цели 
-                    var preferredDirs = targetDirs.Intersect(availableDirs).ToArray();
+                case ModeEnum.Game:
+                    Debug.Assert(OzverinRemains >= 0);
 
-                    var dirsToSelect = availableDirs.ToList();
-
-
-                    // вероятность двинуться в правильном направлении в 6 раз выше
-                    for (int i = 0; i < 5; i++)
+                    if (--OzverinRemains == 0)
                     {
-                        dirsToSelect.AddRange(preferredDirs);
+                        Mode = ModeEnum.Normal;
+                    } 
+                    else if ((OzverinRemains % GameModeSkipStep == 0))
+                    {
+                        return;
                     }
 
-                    Dir = dirsToSelect[_random.Next(dirsToSelect.Count)];
-                }
-            }
+                    SelectDirection(Coordinate.GetDirection(_mouse.Coord, Coord));
+                    break;
 
-            Debug.Assert(OzverinRemains >= 0);
-
-            if (Mode == ModeEnum.Game && --OzverinRemains == 0)
-            {
-                Mode = ModeEnum.Normal;
+                case ModeEnum.Shadow:
+                    if (Coord == State.Level.GateIn)
+                    {
+                        // тень мыши на точке входа в дом
+                        Dir = Level.GateInDirection;
+                    }
+                    else if (Coord == State.Level.GateOut)
+                    {
+                        // тень мыши вошла в дом
+                        Mode = ModeEnum.Normal;
+                    }
+                    else
+                    {
+                        SelectDirection(Coordinate.GetDirection(Coord, State.Level.GateIn));
+                    }
+                    break;
             }
 
             switch (Mode)
@@ -125,6 +121,45 @@ namespace SP21.Animals
             }
 
             base.Step();
+        }
+
+        public override void Reset()
+        {
+            OzverinRemains = 0;
+            Mode = ModeEnum.Normal;
+            Skin = SkinNornal;
+            base.Reset();
+        }
+
+        /// <summary>
+        /// Выбор направления движения.
+        /// </summary>
+        /// <param name="targetDirs">Направления в сторону цели</param>
+        private void SelectDirection(IEnumerable<Coordinate.Direction> targetDirs)
+        {
+            // направления, в которых можно двигаться
+            var availableDirs = Enum.GetValues(typeof (Coordinate.Direction)).OfType<Coordinate.Direction>()
+                .Where(CanMove).ToArray();
+
+            // исключаем направление, откуда только что пришли, если есть другие
+            if (Dir != null && availableDirs.Length > 1)
+            {
+                availableDirs = availableDirs.Except(new[] {((Coordinate.Direction) Dir).Reverse()}).ToArray();
+            }
+
+            // предпочтительные направления - в сторону цели 
+            var preferredDirs = targetDirs.Intersect(availableDirs).ToArray();
+
+            var dirsToSelect = availableDirs.ToList();
+
+
+            // вероятность двинуться в правильном направлении в 6 раз выше
+            for (int i = 0; i < 5; i++)
+            {
+                dirsToSelect.AddRange(preferredDirs);
+            }
+
+            Dir = dirsToSelect[_random.Next(dirsToSelect.Count)];
         }
 
         public void StartOzverinMode()

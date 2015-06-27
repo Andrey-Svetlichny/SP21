@@ -18,6 +18,6 @@
         /// <summary>
         /// Счет.
         /// </summary>
-        public int Score;
+        public int Score { get; set; }
     }
 }

@@ -28,34 +28,28 @@ namespace SP21
             _mouse = new Mouse(_view, _state, _state.Level.InitialMouseCoordinate);
             _cats.AddRange(_state.Level.InitialCatsCoordinate.Select(o => new Cat(_view, _state, o, _mouse)));
             _mouse.Cats = _cats;
-         
-            //_cats.ForEach(c => c.Draw());
-
             _mouse.Draw();
-            //Console.ReadKey();
 
             while (_state.Life > 0)
             {
-                //Mouse.Move()
-                //score += Mouse.Eat()
                 var direction = GetMouseDirectionFromKeyboard();
                 if (direction != null)
                 {
                     _mouse.WantMove((Coordinate.Direction) direction);
                 }
                 _mouse.Step();
-                _view.DrawScore();
-                CheckCatch();
+                CheckCatch();                
                 _cats.ForEach(c => c.Step());
                 CheckCatch();
                 _mouse.Draw();
-                Thread.Sleep(60);
+                
 
                 if (_state.Level.Breadcrumbs == 0)
                 {
                     // съедены все хлебные крошки
                     _state.Level = new Level(++levelNum);
                     _view.DrawLevel();
+                    _view.DrawLife();
                     // init mouse and cats
                     _mouse.Reset();
                     _cats.ForEach(c => c.Reset());
@@ -93,7 +87,11 @@ namespace SP21
         {
             // мышь поймала кошку
             var catchedCats = _cats.Where(c => c.Mode == Cat.ModeEnum.Game && c.Coord == _mouse.Coord).ToList();
-            catchedCats.ForEach(c => c.Mode = Cat.ModeEnum.Shadow);
+            foreach (var catchedCat in catchedCats)
+            {
+                _mouse.EatCat();
+                catchedCat.Mode = Cat.ModeEnum.Shadow;
+            }
 
             // кошка моймала мышь
             if (_cats.Exists(c => c.Mode == Cat.ModeEnum.Normal && c.Coord == _mouse.Coord))
@@ -102,6 +100,7 @@ namespace SP21
                 _view.DrawLife();
                 _mouse.Die();
                 Thread.Sleep(1000);
+                _cats.ForEach(c => { c.Hide(); Thread.Sleep(200); });
                 _mouse.Reset();
                 _cats.ForEach(c => c.Reset());
             }

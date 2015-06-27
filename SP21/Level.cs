@@ -63,7 +63,7 @@ namespace SP21
         /// <summary>
         /// Время действия озверина на текущем уровне.
         /// </summary>
-        public const int OzverinTime = 144;
+        public const int OzverinTime = 180;
 
         /// <summary>
         /// Количество оставшихся хлебных крошек.

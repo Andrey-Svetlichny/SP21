@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace SP21
 {
@@ -18,6 +19,7 @@ namespace SP21
                 {
                     Console.SetCursorPosition(x, y);
                     Console.Write(_state.Level[new Coordinate.Point(x, y)]);
+                    Thread.Sleep(1);
                 }
         }
 
@@ -44,6 +46,18 @@ namespace SP21
         public void DrawScore()
         {
             Draw(new Coordinate.Point { X = 36, Y = 18 }, string.Format("{0,6}", _state.Score));
+        }
+
+        public void IncreaseScore(int scoreDiff)
+        {
+            var newScore = _state.Score + scoreDiff;
+            if (newScore / 500 > _state.Score / 500)
+            {
+                _state.Life++;
+                DrawLife();
+            }
+            _state.Score = newScore;
+            DrawScore();
         }
     }
 }

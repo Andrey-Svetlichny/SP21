@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace SP21.Animals
 {
@@ -10,6 +11,7 @@ namespace SP21.Animals
         public Coordinate.Point Coord, InitialCoord;
         public Coordinate.Direction? Dir = null;
         protected string Skin;
+        protected int StepSleepTime = 15;
 
         protected Animal(View view, GameState state, Coordinate.Point coord)
         {
@@ -39,6 +41,7 @@ namespace SP21.Animals
             Hide();
             Move();
             Draw();
+            Thread.Sleep(StepSleepTime);
         }
 
         public virtual void Reset()
