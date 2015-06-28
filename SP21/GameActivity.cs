@@ -14,6 +14,10 @@ namespace SP21
         Mouse _mouse;
         readonly List<Cat> _cats = new List<Cat>();
 
+        public int Score {
+            get { return _state == null ? 0 : _state.Score; } 
+        }
+
         public void Show()
         {
 

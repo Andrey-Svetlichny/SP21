@@ -10,10 +10,11 @@ namespace SP21
             Console.CursorVisible = false;
 
             var scoreActivity = new ScoreActivity();
+            var gameActivity = new GameActivity();
 
-            while (scoreActivity.Show())
+            while (scoreActivity.Show(gameActivity.Score))
             {
-                new GameActivity().Show();
+                gameActivity.Show();
             }
         }
     }
