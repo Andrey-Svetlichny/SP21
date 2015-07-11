@@ -167,7 +167,7 @@ namespace SP21.Animals
             if (Mode != ModeEnum.Shadow)
             {
                 Mode = ModeEnum.Game;
-                OzverinRemains = Level.OzverinTime;
+                OzverinRemains = State.Level.OzverinTime;
             }
         }
     }

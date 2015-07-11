@@ -10,6 +10,8 @@ namespace SP21
 {
     public class Level
     {
+        const string ResLevel = "SP21.Levels.Level{0}.txt";
+
         StringBuilder[] _lines;
 
         public char this[Coordinate.Point p]
@@ -63,7 +65,7 @@ namespace SP21
         /// <summary>
         /// Время действия озверина на текущем уровне.
         /// </summary>
-        public const int OzverinTime = 180;
+        public int OzverinTime { get; private set; }
 
         /// <summary>
         /// Количество оставшихся хлебных крошек.
@@ -73,17 +75,18 @@ namespace SP21
         public Level(int levelNum)
         {
             Load(levelNum);
+            // ToDo уточнить
+            OzverinTime = 180 - (levelNum -1) * 10;
         }
 
         private void Load(int level)
         {
             Debug.Assert(level > 0);
-            const string resLevel = "SP21.Levels.Level{0}.txt";
             var n = (level - 1) % 3 + 1;
 
             string text;
             var assembly = Assembly.GetExecutingAssembly();
-            using (var stream = assembly.GetManifestResourceStream(string.Format(resLevel, n)))
+            using (var stream = assembly.GetManifestResourceStream(string.Format(ResLevel, n)))
             using (var reader = new StreamReader(stream))
             {
                 text = reader.ReadToEnd();
