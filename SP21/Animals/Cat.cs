@@ -5,20 +5,31 @@ using System.Linq;
 
 namespace SP21.Animals
 {
-    class Cat : Animal
+    public class Cat : Animal
     {
-        private readonly Mouse _mouse;
         private static Random _random;
         private const string SkinNornal = "=0=", SkinGame = "<->", SkinShadow = "---";
 
         public enum ModeEnum
         {
+            /// <summary>
+            /// Нормальная кошка, охотится на мышь.
+            /// </summary>
             Normal,
-            Game,
+
+            /// <summary>
+            /// Кошка стала предметом охоты и спасается от озверевшей мыши.
+            /// </summary>
+            Prey,
+
+            /// <summary>
+            /// Тень, оставшаяся от кошки, после того как ее съела озверевшая мышь,
+            /// возвращается к дому, чтобы возродиться.
+            /// </summary>
             Shadow
         }
 
-        private const int GameModeSkipStep = 4;
+        private const int PreyModeSkipStep = 4;
 
         public ModeEnum Mode
         {
@@ -41,68 +52,68 @@ namespace SP21.Animals
 
         private ModeEnum _mode;
 
-        public Cat(View view, GameState state, Coordinate.Point coord, Mouse mouse)
-            : base(view, state, coord)
+        public Cat()
         {
             _random = new Random();
-            _mouse = mouse;
             OzverinRemains = 0;
             Mode = ModeEnum.Normal;
             Skin = SkinNornal;
         }
 
-        public override void Step()
+        public void Step(Coordinate.Point mouseCoord)
         {
             switch (Mode)
             {
                 case ModeEnum.Normal:
-                    if (Coord == State.Level.GateOut)
+                    if (Coord == Level.GateOut)
                     {
-                        // мышь на точке выхода из дома
+                        // кошка на точке выхода из дома
                         Dir = Level.GateOutDirection;
                     }
-                    else if (State.Level.IsHome(Coord))
+                    else if (Level.IsHome(Coord))
                     {
-                        // мышь в доме
+                        // кошка в доме
                         var availableDirs = Enum.GetValues(typeof(Coordinate.Direction)).OfType<Coordinate.Direction>()
                             .Where(CanMove).ToArray();
                         Dir = (Coordinate.Direction)availableDirs.GetValue(_random.Next(availableDirs.Length));
                     }
                     else
                     {
-                        SelectDirection(Coordinate.GetDirection(Coord, _mouse.Coord));
+                        SelectDirection(Coordinate.GetDirection(Coord, mouseCoord));
                     }
                     break;
 
-                case ModeEnum.Game:
+                case ModeEnum.Prey:
                     Debug.Assert(OzverinRemains >= 0);
 
                     if (--OzverinRemains == 0)
                     {
+                        // кончилось время работы озверина
                         Mode = ModeEnum.Normal;
                     } 
-                    else if ((OzverinRemains % GameModeSkipStep == 0))
+                    else if (OzverinRemains % PreyModeSkipStep == 0)
                     {
+                        // кошка пропускает ход
                         return;
                     }
 
-                    SelectDirection(Coordinate.GetDirection(_mouse.Coord, Coord));
+                    SelectDirection(Coordinate.GetDirection(mouseCoord, Coord));
                     break;
 
                 case ModeEnum.Shadow:
-                    if (Coord == State.Level.GateIn)
+                    if (Coord == Level.GateIn)
                     {
-                        // тень мыши на точке входа в дом
+                        // тень кошки на точке входа в дом
                         Dir = Level.GateInDirection;
                     }
-                    else if (Coord == State.Level.GateOut)
+                    else if (Coord == Level.GateOut)
                     {
-                        // тень мыши вошла в дом
+                        // тень кошки вошла в дом
                         Mode = ModeEnum.Normal;
                     }
                     else
                     {
-                        SelectDirection(Coordinate.GetDirection(Coord, State.Level.GateIn));
+                        SelectDirection(Coordinate.GetDirection(Coord, Level.GateIn));
                     }
                     break;
             }
@@ -112,7 +123,7 @@ namespace SP21.Animals
                 case ModeEnum.Normal:
                     Skin = SkinNornal;
                     break;
-                case ModeEnum.Game:
+                case ModeEnum.Prey:
                     Skin = SkinGame;
                     break;
                 case ModeEnum.Shadow:
@@ -121,14 +132,6 @@ namespace SP21.Animals
             }
 
             base.Step();
-        }
-
-        public override void Reset()
-        {
-            OzverinRemains = 0;
-            Mode = ModeEnum.Normal;
-            Skin = SkinNornal;
-            base.Reset();
         }
 
         /// <summary>
@@ -166,8 +169,8 @@ namespace SP21.Animals
         {
             if (Mode != ModeEnum.Shadow)
             {
-                Mode = ModeEnum.Game;
-                OzverinRemains = State.Level.OzverinTime;
+                Mode = ModeEnum.Prey;
+                OzverinRemains = Level.OzverinTime;
             }
         }
     }

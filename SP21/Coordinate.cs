@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace SP21
 {
@@ -9,71 +8,32 @@ namespace SP21
         public const int MaxX = 80;
         public const int MaxY = 24;
 
-        [DebuggerDisplay("X={X}; Y={Y};")]
         public struct Point
         {
-            private int _x;
-            private int _y;
-            private bool _normalizing;
-            private bool _normalized;
+            private int _value;
 
             public Point(int x, int y)
             {
-                _x = x;
-                _y = y;
-                _normalizing = false;
-                _normalized = false;
+                _value = y * MaxX + x;
             }
 
-            public int X
-            {
-                get
-                {
-                    Normalize();
-                    return _x;
-                }
-                set
-                {
-                    _x = value;
-                    _normalized = false;
-                }
-            }
+            public int X => _value % MaxX;
 
-            public int Y
-            {
-                get
-                {
-                    Normalize();
-                    return _y;
-                }
-                set
-                {
-                    _y = value;
-                    _normalized = false;                    
-                }
-            }
+            public int Y => _value / MaxX;
 
-            private void Normalize()
+            public override string ToString()
             {
-                if (_normalizing || _normalized)
-                {
-                    return;
-                }
-                _normalizing = true;
-                Y += (X + MaxX) / MaxX - 1;
-                X = (X + MaxX) % MaxX;
-                _normalized = true;
-                _normalizing = false;
+                return $"{X} {Y}";
             }
 
             public static bool operator ==(Point a, Point b)
             {
-                return a.X == b.X && a.Y == b.Y;
+                return a._value == b._value;
             }
 
             public static bool operator !=(Point a, Point b)
             {
-                return !(a == b);
+                return a._value != b._value;
             }
 
             public bool Equals(Point other)
@@ -91,32 +51,36 @@ namespace SP21
             {
                 unchecked
                 {
-                    return (X * 397) ^ Y;
+                    return Y * MaxX + X;
                 }
             }
 
-            public void Move(Direction? direction)
+            public void Move(Direction direction)
             {
                 switch (direction)
                 {
                     case Direction.Left:
-                        X--;
+                        _value--;
                         break;
                     case Direction.Right:
-                        X++;
+                        _value++;
                         break;
                     case Direction.Up:
-                        Y--;
+                        _value -= MaxX;
                         break;
                     case Direction.Down:
-                        Y++;
+                        _value += MaxX;
                         break;
+                }
+                if (_value < 0 || _value > MaxX * MaxY)
+                {
+                    throw new ArgumentException();
                 }
             }
 
             public Point Copy(int dx, int dy)
             {
-                return new Point { X = X + dx, Y = Y + dy };
+                return new Point(X + dx, Y + dy);
             }
         }
 
@@ -124,7 +88,6 @@ namespace SP21
         {
             Left, Right, Up, Down
         }
-
 
         public static Direction[] GetDirection(Point from, Point to)
         {
@@ -150,6 +113,7 @@ namespace SP21
             return ret.ToArray();
         }
     }
+
     public static class DirectionExtension
     {
         public static Coordinate.Direction Reverse(this Coordinate.Direction direction)

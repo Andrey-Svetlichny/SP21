@@ -1,5 +1,7 @@
 obj/
 bin/
+packages/
 *.user
 *.suo
 DVK Emulator/
+DVK Emulator DOC/
