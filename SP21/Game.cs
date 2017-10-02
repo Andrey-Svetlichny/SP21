@@ -26,7 +26,7 @@ namespace SP21
         public void Run()
         {
             _view.DrawScoreTable(_scoreTable);
-            if (!ConsoleInput.UserWantsToPlay(true))
+            if (!ConsoleView.UserWantsToPlay(true))
             {
                 return;
             }
@@ -50,15 +50,20 @@ namespace SP21
                     GameStep();
                 }
 
+                var position = _scoreTable.Add(_score);
                 _view.DrawScoreTable(_scoreTable);
-                if (!ConsoleInput.UserWantsToPlay(false))
+                if (position != -1)
+                {
+                    _scoreTable.Scores[position].Name = ConsoleView.EnterName(position);
+                    _scoreTable.Save();
+                }
+                if (!ConsoleView.UserWantsToPlay(false))
                     break;
             }
         }
 
         private void GameStep()
         {
-            _view.StepPause();
             foreach (var cat in _cats)
             {
                 cat.Step(_mouse.Coord);
@@ -66,7 +71,7 @@ namespace SP21
                 CheckCatch(cat, _mouse);
             }
 
-            var direction = ConsoleInput.GetMouseDirectionFromKeyboard();
+            var direction = ConsoleView.GetMouseDirectionFromKeyboard();
             if (direction != null)
             {
                 _mouse.WantMove(direction.Value);
@@ -79,13 +84,14 @@ namespace SP21
             switch (item)
             {
                 case '@':
-                    _score += 5;
+                    IncreaseScore(5);
                     _view.DrawScore(_score);
                     _cats.Where(c => !_level.IsHome(c.Coord)).ToList().ForEach(c => c.StartOzverinMode());
                     _catsEatenDuringCurrentOzverin = 0;
                     break;
                 case '.':
-                    _view.DrawScore(++_score);
+                    IncreaseScore(1);
+                    _view.DrawScore(_score);
                     if (--_breadcrumbs == 0)
                     {
                         _level.LevelNum++;
@@ -151,6 +157,7 @@ namespace SP21
                 _cats[i].Level = _level;
                 _cats[i].Coord = _level.InitialCatsCoordinateDirection[i].Item1;
                 _cats[i].Dir = _level.InitialCatsCoordinateDirection[i].Item2;
+                _cats[i].Mode = Cat.ModeEnum.Normal;
             }
             _mouse.Level = _level;
             _mouse.Coord = _level.InitialMouseCoordinate;

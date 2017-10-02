@@ -13,7 +13,7 @@ namespace SP21
             get { return _name; }
             set
             {
-                _name = value.Substring(0, MaxNameLength);
+                _name = value.Length <= MaxNameLength ? value : value.Substring(0, MaxNameLength);
             }
         }
 

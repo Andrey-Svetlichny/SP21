@@ -27,14 +27,10 @@ namespace SP21
         public int Add(int score)
         {
             NewScore = new Score { Value = score };
-//            if (score > 0)
-//            {
-                Scores.Add(NewScore);
-                Scores = Scores.OrderByDescending(o => o.Value).ToList();
-                Scores.RemoveAt(Scores.Count - 1);
-//            }
-            var position = Scores.IndexOf(NewScore);
-            return position;
+            Scores.Add(NewScore);
+            Scores = Scores.OrderByDescending(o => o.Value).ToList();
+            Scores.RemoveAt(Scores.Count - 1);
+            return Scores.IndexOf(NewScore);
         }
 
         public void Load()

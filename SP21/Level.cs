@@ -160,7 +160,7 @@ namespace SP21
             Breadcrumbs = text.Count(f => f == '.');
 
             // ToDo уточнить
-            OzverinTime = 180 - (levelNum - 1) * 10;
+            OzverinTime = 190 - levelNum * 10;
         }
 
         /// <summary>

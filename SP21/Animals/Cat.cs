@@ -44,7 +44,6 @@ namespace SP21.Animals
             }
         }
 
-
         /// <summary>
         /// Осталось времени текущему озверину.
         /// </summary>
@@ -70,12 +69,11 @@ namespace SP21.Animals
                         // кошка на точке выхода из дома
                         Dir = Level.GateOutDirection;
                     }
-                    else if (Level.IsHome(Coord))
+                    else 
+                    if (Level.IsHome(Coord))
                     {
                         // кошка в доме
-                        var availableDirs = Enum.GetValues(typeof(Coordinate.Direction)).OfType<Coordinate.Direction>()
-                            .Where(CanMove).ToArray();
-                        Dir = (Coordinate.Direction)availableDirs.GetValue(_random.Next(availableDirs.Length));
+                        SelectDirection(Coordinate.GetDirection(Coord, Level.GateOut));
                     }
                     else
                     {
@@ -154,7 +152,6 @@ namespace SP21.Animals
             var preferredDirs = targetDirs.Intersect(availableDirs).ToArray();
 
             var dirsToSelect = availableDirs.ToList();
-
 
             // вероятность двинуться в правильном направлении в 6 раз выше
             for (int i = 0; i < 5; i++)

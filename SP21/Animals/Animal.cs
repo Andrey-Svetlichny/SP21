@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SP21.Animals
@@ -21,23 +20,20 @@ namespace SP21.Animals
         protected bool CanMove(Coordinate.Direction direction)
         {
             var allowedChars = new[] { ' ', '.', '@' };
-            return CharsForward(direction).All(c => allowedChars.Any(allowed => c == allowed));
-        }
-
-        protected IEnumerable<char> CharsForward(Coordinate.Direction direction)
-        {
             switch (direction)
             {
                 case Coordinate.Direction.Left:
-                    return Level.Get(Coord.Copy(-2, 0), 1);
+                    return allowedChars.Contains(Level[Coord.Copy(-2, 0)]);
                 case Coordinate.Direction.Right:
-                    return Level.Get(Coord.Copy(2, 0), 1);
+                    return allowedChars.Contains(Level[Coord.Copy(2, 0)]);
                 case Coordinate.Direction.Up:
-                    return Level.Get(Coord.Copy(-1, -1), 3);
+                    return Level.Get(Coord.Copy(-1, -1), 3)
+                        .All(c => allowedChars.Any(allowed => c == allowed));
                 case Coordinate.Direction.Down:
-                    return Level.Get(Coord.Copy(-1, 1), 3);
+                    return Level.Get(Coord.Copy(-1, 1), 3)
+                        .All(c => allowedChars.Any(allowed => c == allowed));
                 default:
-                    return new char[] { };
+                    return false;
             }
         }
 
