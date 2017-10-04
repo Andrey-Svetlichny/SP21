@@ -19,7 +19,7 @@ namespace SP21.Animals
 
         protected bool CanMove(Coordinate.Direction direction)
         {
-            var allowedChars = new[] { ' ', '.', '@' };
+            var allowedChars = new[] { ' ', '.', '@', '*', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
             switch (direction)
             {
                 case Coordinate.Direction.Left:

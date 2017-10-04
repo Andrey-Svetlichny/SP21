@@ -49,6 +49,11 @@ namespace SP21
         /// </summary>
         public readonly Coordinate.Point InitialMouseCoordinate = new Coordinate.Point(39, 16);
 
+        /// <summary>
+        /// Расположение бонуса.
+        /// </summary>
+        public readonly Coordinate.Point BonusCoordinate = new Coordinate.Point(38, 16);
+
         const string ResLevel = "SP21.Levels.Level{0}.txt";
 
         private int _levelNum;
@@ -100,17 +105,6 @@ namespace SP21
             {
                 _lines[p.Y][p.X] = value;
             }
-        }
-
-        public char EatBreadcrumb(Coordinate.Point point)
-        {
-            var c = this[point];
-            this[point] = ' ';
-            if (c == '.')
-            {
-                Breadcrumbs--;
-            }
-            return c;
         }
 
         public string Get(Coordinate.Point point, int count)
@@ -172,6 +166,15 @@ namespace SP21
             {
                 this[new Coordinate.Point(79, i)] = i < _lives - 1 ? 'X' : ' ';
             }
+        }
+
+        public void SetBonus(int bonus)
+        {
+            var s =  bonus == 0 ? "   " : $"{bonus / 10}*{bonus % 10}";
+
+            this[BonusCoordinate] = s[0];
+            this[BonusCoordinate.Copy(1,0)] = s[1];
+            this[BonusCoordinate.Copy(2, 0)] = s[2];
         }
     }
 }

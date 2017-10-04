@@ -52,10 +52,8 @@ namespace SP21
             var cutLength = Coordinate.MaxX - point.X;
             if (s.Length > cutLength)
             {
-                var s1 = s.Substring(0, cutLength);
-                var s2 = s.Substring(cutLength);
-                Draw(point, s1);
-                Draw(new Coordinate.Point(0, point.Y + 1), s2);
+                Draw(point, s.Substring(0, cutLength));
+                Draw(new Coordinate.Point(0, point.Y + 1), s.Substring(cutLength));
                 return;
             }
             Console.SetCursorPosition(point.X, point.Y);
@@ -184,6 +182,11 @@ namespace SP21
                         return true;
                 }
             }
+        }
+
+        public void DrawBonus(Level level)
+        {
+            Draw(level.BonusCoordinate, level.Get(level.BonusCoordinate, 3));
         }
     }
 }

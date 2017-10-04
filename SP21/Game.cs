@@ -14,6 +14,17 @@ namespace SP21
         int _score;
         int _breadcrumbs;
         int _catsEatenDuringCurrentOzverin;
+        int _bonus;
+
+        /// <summary>
+        /// Осталось времени текущему озверину.
+        /// </summary>
+        int _ozverinRemains;
+
+        /// <summary>
+        /// Осталось времени текущему бонусу.
+        /// </summary>
+        int _bonusRemains;
 
         public Game()
         {
@@ -37,6 +48,9 @@ namespace SP21
                 _level.Lives = 3;
                 _breadcrumbs = _level.Breadcrumbs;
                 _score = 0;
+                _bonus = 0;
+                _ozverinRemains = 0;
+                _bonusRemains = 0;
                 InitAnimals();
                 _view.DrawLevel(_level);
                 foreach (var cat in _cats)
@@ -64,11 +78,37 @@ namespace SP21
 
         private void GameStep()
         {
-            foreach (var cat in _cats)
+            if (_score%100 == 0 && _score > 0)
             {
-                cat.Step(_mouse.Coord);
-                _view.Draw(cat, _level);
-                CheckCatch(cat, _mouse);
+                // время показать бонус
+                _bonus = 20;
+                _bonusRemains = 100;
+                _level.SetBonus(_bonus);
+                _view.DrawBonus(_level);
+            }
+
+            if (_ozverinRemains > 0 && --_ozverinRemains == 0)
+            {
+                // кончилось время работы озверина
+                _cats.ForEach(o => o.Mode = Cat.ModeEnum.Normal);
+            }
+
+            if (_bonusRemains > 0 && --_bonusRemains == 0)
+            {
+                // кончилось время показа бонуса
+                _bonus = 0;
+                _level.SetBonus(_bonus);
+                _view.DrawBonus(_level);
+            }
+
+            if (_ozverinRemains == 0 || _ozverinRemains%Cat.PreyModeSkipStep != 0)
+            {
+                foreach (var cat in _cats)
+                {
+                    cat.Step(_mouse.Coord);
+                    _view.Draw(cat, _level);
+                    CheckCatch(cat, _mouse);
+                }
             }
 
             var direction = ConsoleView.GetMouseDirectionFromKeyboard();
@@ -83,10 +123,17 @@ namespace SP21
                 _mouse.Dir == Coordinate.Direction.Right ? _mouse.Coord.Copy(1,0) : _mouse.Coord);
             switch (item)
             {
+                case '*':
+                    IncreaseScore(_bonus);
+                    _bonus = 0;
+                    _level.SetBonus(_bonus);
+                    break;
                 case '@':
                     IncreaseScore(5);
                     _view.DrawScore(_score);
-                    _cats.Where(c => !_level.IsHome(c.Coord)).ToList().ForEach(c => c.StartOzverinMode());
+                    _ozverinRemains = _level.OzverinTime;
+                    _cats.Where(c => !_level.IsHome(c.Coord) && c.Mode != Cat.ModeEnum.Shadow)
+                        .ToList().ForEach(c => c.Mode = Cat.ModeEnum.Prey);
                     _catsEatenDuringCurrentOzverin = 0;
                     break;
                 case '.':
@@ -119,6 +166,8 @@ namespace SP21
             if (cat.Mode == Cat.ModeEnum.Normal)
             {
                 _level.Lives--;
+                _bonus = 0;
+                _level.SetBonus(_bonus );
                 _view.MouseDieAnimation(_level, _cats, _mouse);
                 _view.DrawLevel(_level);
                 InitAnimals();

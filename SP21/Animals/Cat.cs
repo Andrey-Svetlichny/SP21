@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace SP21.Animals
@@ -29,7 +28,10 @@ namespace SP21.Animals
             Shadow
         }
 
-        private const int PreyModeSkipStep = 4;
+        /// <summary>
+        /// Кошка пропускает каждый 4-й ход
+        /// </summary>
+        public const int PreyModeSkipStep = 4;
 
         public ModeEnum Mode
         {
@@ -44,17 +46,12 @@ namespace SP21.Animals
             }
         }
 
-        /// <summary>
-        /// Осталось времени текущему озверину.
-        /// </summary>
-        public int OzverinRemains;
 
         private ModeEnum _mode;
 
         public Cat()
         {
             _random = new Random();
-            OzverinRemains = 0;
             Mode = ModeEnum.Normal;
             Skin = SkinNornal;
         }
@@ -82,19 +79,6 @@ namespace SP21.Animals
                     break;
 
                 case ModeEnum.Prey:
-                    Debug.Assert(OzverinRemains >= 0);
-
-                    if (--OzverinRemains == 0)
-                    {
-                        // кончилось время работы озверина
-                        Mode = ModeEnum.Normal;
-                    } 
-                    else if (OzverinRemains % PreyModeSkipStep == 0)
-                    {
-                        // кошка пропускает ход
-                        return;
-                    }
-
                     SelectDirection(Coordinate.GetDirection(mouseCoord, Coord));
                     break;
 
@@ -160,15 +144,6 @@ namespace SP21.Animals
             }
 
             Dir = dirsToSelect[_random.Next(dirsToSelect.Count)];
-        }
-
-        public void StartOzverinMode()
-        {
-            if (Mode != ModeEnum.Shadow)
-            {
-                Mode = ModeEnum.Prey;
-                OzverinRemains = Level.OzverinTime;
-            }
         }
     }
 }
