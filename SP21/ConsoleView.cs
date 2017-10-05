@@ -65,21 +65,21 @@ namespace SP21
             switch (animal.Dir)
             {
                 case null:
-                    Draw(animal.Coord.Copy(-1, 0), animal.Skin);
+                    Draw(animal.Coord - 1, animal.Skin);
                     break;
                 case Coordinate.Direction.Left:
-                    Draw(animal.Coord.Copy(-1, 0), animal.Skin + level[animal.Coord.Copy(2, 0)]);
+                    Draw(animal.Coord - 1, animal.Skin + level[animal.Coord + 2]);
                     break;
                 case Coordinate.Direction.Right:
-                    Draw(animal.Coord.Copy(-2, 0), level[animal.Coord.Copy(-2, 0)] + animal.Skin);
+                    Draw(animal.Coord - 2, level[animal.Coord - 2] + animal.Skin);
                     break;
                 case Coordinate.Direction.Up:
-                    Draw(animal.Coord.Copy(-1, +1), level.Get(animal.Coord.Copy(-1, +1), 3));
-                    Draw(animal.Coord.Copy(-1, 0), animal.Skin);
+                    Draw(animal.Coord.Add(-1, +1), level.Get(animal.Coord.Add(-1, +1), 3));
+                    Draw(animal.Coord - 1, animal.Skin);
                     break;
                 case Coordinate.Direction.Down:
-                    Draw(animal.Coord.Copy(-1, -1), level.Get(animal.Coord.Copy(-1, -1), 3));
-                    Draw(animal.Coord.Copy(-1, 0), animal.Skin);
+                    Draw(animal.Coord.Add(-1, -1), level.Get(animal.Coord.Add(-1, -1), 3));
+                    Draw(animal.Coord - 1, animal.Skin);
                     break;
             }
             StepPause();
@@ -100,9 +100,9 @@ namespace SP21
             const string skinDied1 = "$+$", skinDied2 = "+$+";
             for (int i = 0; i < 4; i++)
             {
-                Draw(mouse.Coord.Copy(-1, 0), skinDied1);
+                Draw(mouse.Coord - 1, skinDied1);
                 Pause(100);
-                Draw(mouse.Coord.Copy(-1, 0), skinDied2);
+                Draw(mouse.Coord - 1, skinDied2);
                 Pause(100);
             }
         }

@@ -119,8 +119,8 @@ namespace SP21
             _mouse.Step();
             _view.Draw(_mouse, _level);
             var item = _level.Take(
-                _mouse.Dir == Coordinate.Direction.Left ?  _mouse.Coord.Copy(-1,0) :
-                _mouse.Dir == Coordinate.Direction.Right ? _mouse.Coord.Copy(1,0) : _mouse.Coord);
+                _mouse.Dir == Coordinate.Direction.Left ? _mouse.Coord - 1 :
+                _mouse.Dir == Coordinate.Direction.Right ? _mouse.Coord + 1 : _mouse.Coord);
             switch (item)
             {
                 case '*':

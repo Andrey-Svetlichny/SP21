@@ -11,10 +11,7 @@ namespace SP21.Animals
 
         public virtual void Step()
         {
-            if (Dir != null)
-            {
-                Coord.Move((Coordinate.Direction)Dir);
-            }
+            Coord = Coord.Move(Dir);
         }
 
         protected bool CanMove(Coordinate.Direction direction)
@@ -23,14 +20,14 @@ namespace SP21.Animals
             switch (direction)
             {
                 case Coordinate.Direction.Left:
-                    return allowedChars.Contains(Level[Coord.Copy(-2, 0)]);
+                    return allowedChars.Contains(Level[Coord - 2]);
                 case Coordinate.Direction.Right:
-                    return allowedChars.Contains(Level[Coord.Copy(2, 0)]);
+                    return allowedChars.Contains(Level[Coord + 2]);
                 case Coordinate.Direction.Up:
-                    return Level.Get(Coord.Copy(-1, -1), 3)
+                    return Level.Get(Coord.Add(-1, -1), 3)
                         .All(c => allowedChars.Any(allowed => c == allowed));
                 case Coordinate.Direction.Down:
-                    return Level.Get(Coord.Copy(-1, 1), 3)
+                    return Level.Get(Coord.Add(-1, 1), 3)
                         .All(c => allowedChars.Any(allowed => c == allowed));
                 default:
                     return false;

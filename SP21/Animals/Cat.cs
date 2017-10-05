@@ -46,7 +46,6 @@ namespace SP21.Animals
             }
         }
 
-
         private ModeEnum _mode;
 
         public Cat()

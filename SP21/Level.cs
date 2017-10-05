@@ -113,7 +113,7 @@ namespace SP21
             for (int i = 0; i < count; i++)
             {
                 ret += this[point];
-                point.Move(Coordinate.Direction.Right);
+                point = point + 1;
             }
             return ret;
         }
@@ -173,8 +173,8 @@ namespace SP21
             var s =  bonus == 0 ? "   " : $"{bonus / 10}*{bonus % 10}";
 
             this[BonusCoordinate] = s[0];
-            this[BonusCoordinate.Copy(1,0)] = s[1];
-            this[BonusCoordinate.Copy(2, 0)] = s[2];
+            this[BonusCoordinate + 1] = s[1];
+            this[BonusCoordinate + 2] = s[2];
         }
     }
 }
