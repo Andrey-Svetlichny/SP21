@@ -52,7 +52,7 @@ namespace SP21
         /// <summary>
         /// Расположение бонуса.
         /// </summary>
-        public readonly Coordinate.Point BonusCoordinate = new Coordinate.Point(38, 16);
+        public readonly Coordinate.Point BonusCoordinate = new Coordinate.Point(38, 14);
 
         const string ResLevel = "SP21.Levels.Level{0}.txt";
 

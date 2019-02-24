@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SP21.Animals;
 
@@ -6,6 +7,7 @@ namespace SP21
 {
     public class Game
     {
+        private static Random _random;
         readonly Level _level;
         readonly ConsoleView _view;
         readonly ScoreTable _scoreTable;
@@ -22,12 +24,13 @@ namespace SP21
         int _ozverinRemains;
 
         /// <summary>
-        /// Осталось времени текущему бонусу.
+        /// Осталось времени до показа/исчезновения бонуса.
         /// </summary>
         int _bonusRemains;
 
         public Game()
         {
+            _random = new Random();
             _level = new Level();
             _view = new ConsoleView();
             _scoreTable = new ScoreTable();
@@ -48,9 +51,8 @@ namespace SP21
                 _level.Lives = 3;
                 _breadcrumbs = _level.Breadcrumbs;
                 _score = 0;
-                _bonus = 0;
                 _ozverinRemains = 0;
-                _bonusRemains = 0;
+                InitBonus();
                 InitAnimals();
                 _view.DrawLevel(_level);
                 foreach (var cat in _cats)
@@ -76,13 +78,31 @@ namespace SP21
             }
         }
 
+        /// <summary>
+        /// Сбросить бонус и завести таймер для показа бонуса
+        /// </summary>
+        private void InitBonus()
+        {
+            _bonus = 0;
+            _bonusRemains = 500 + _random.Next(200);
+        }
+
         private void GameStep()
         {
-            if (_score%100 == 0 && _score > 0)
+            if (_bonus == 0 && --_bonusRemains == 0)
             {
                 // время показать бонус
-                _bonus = 20;
-                _bonusRemains = 100;
+                _bonus = 15 * (_score / 500 + 1);
+                _bonusRemains = 120;
+                _level.SetBonus(_bonus);
+                _view.DrawBonus(_level);
+            }
+
+            if (_bonus > 0 && --_bonusRemains == 0)
+            {
+                // кончилось время показа бонуса
+                // на этом уровне бонусов больше не будет (_bonusRemains < 0)
+                _bonus = 0;
                 _level.SetBonus(_bonus);
                 _view.DrawBonus(_level);
             }
@@ -93,13 +113,6 @@ namespace SP21
                 _cats.ForEach(o => o.Mode = Cat.ModeEnum.Normal);
             }
 
-            if (_bonusRemains > 0 && --_bonusRemains == 0)
-            {
-                // кончилось время показа бонуса
-                _bonus = 0;
-                _level.SetBonus(_bonus);
-                _view.DrawBonus(_level);
-            }
 
             if (_ozverinRemains == 0 || _ozverinRemains%Cat.PreyModeSkipStep != 0)
             {
@@ -125,7 +138,7 @@ namespace SP21
             {
                 case '*':
                     IncreaseScore(_bonus);
-                    _bonus = 0;
+                    InitBonus();
                     _level.SetBonus(_bonus);
                     break;
                 case '@':
@@ -166,7 +179,7 @@ namespace SP21
             if (cat.Mode == Cat.ModeEnum.Normal)
             {
                 _level.Lives--;
-                _bonus = 0;
+                InitBonus();
                 _level.SetBonus(_bonus );
                 _view.MouseDieAnimation(_level, _cats, _mouse);
                 _view.DrawLevel(_level);
