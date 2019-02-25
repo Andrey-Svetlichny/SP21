@@ -57,7 +57,7 @@ namespace SP21
         const string ResLevel = "SP21.Levels.Level{0}.txt";
 
         private int _levelNum;
-        StringBuilder[] _lines;
+        char[][] _lines;
 
         private int _lives;
 
@@ -149,7 +149,7 @@ namespace SP21
                 text = reader.ReadToEnd();
             }
             _lines = text.Split(new[] { "\r\n" }, StringSplitOptions.None)
-                .Select(l => new StringBuilder(l.PadRight(80))).ToArray();
+                .Select(l => l.PadRight(80).ToCharArray()).ToArray();
 
             Breadcrumbs = text.Count(f => f == '.');
 

@@ -11,7 +11,6 @@ namespace SP21
         public ConsoleView()
         {
             // Console setup
-            Console.ForegroundColor = ConsoleColor.Green;
             Console.CursorVisible = false;
         }
 
@@ -29,8 +28,8 @@ namespace SP21
                     isLastRow ? "*********" : scoreTable.Scores[i].Name,
                     scoreTable.Scores[i].Value);
             }
-            Console.SetCursorPosition(0, 24);
-            Console.Write("SP21 Remake by Andrey Svetlichny");
+            Console.SetCursorPosition(26, 23);
+            Console.Write("Remake by Andrey Svetlichny");
         }
 
 
@@ -39,12 +38,12 @@ namespace SP21
             for (int y = 0; y < Coordinate.MaxY; y++)
                 for (int x = 0; x < Coordinate.MaxX; x++)
                 {
+                    if(x == Coordinate.MaxX -1 && y == Coordinate.MaxY -1)
+                        continue; // prevent scrolling on termilal 80x24
                     Console.SetCursorPosition(x, y);
                     Console.Write(level[new Coordinate.Point(x, y)]);
                     Pause(1);
                 }
-            Console.SetCursorPosition(0, 24);
-            Console.Write("                                ");
         }
 
         public void Draw(Coordinate.Point point, string s)
