@@ -110,9 +110,12 @@ namespace SP21
             if (_ozverinRemains > 0 && --_ozverinRemains == 0)
             {
                 // кончилось время работы озверина
-                _cats.ForEach(o => o.Mode = Cat.ModeEnum.Normal);
+                foreach (var cat in _cats)
+                {
+                    if (cat.Mode == Cat.ModeEnum.Prey)
+                        cat.Mode = Cat.ModeEnum.Normal;
+                }
             }
-
 
             if (_ozverinRemains == 0 || _ozverinRemains%Cat.PreyModeSkipStep != 0)
             {
