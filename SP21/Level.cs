@@ -90,11 +90,6 @@ namespace SP21
             }
         }
 
-        /// <summary>
-        /// Время действия озверина на текущем уровне.
-        /// </summary>
-        public int OzverinTime { get; private set; }
-
         public char this[Coordinate.Point p]
         {
             get
@@ -152,9 +147,6 @@ namespace SP21
                 .Select(l => l.PadRight(80).ToCharArray()).ToArray();
 
             Breadcrumbs = text.Count(f => f == '.');
-
-            // ToDo уточнить
-            OzverinTime = 190 - levelNum * 10;
         }
 
         /// <summary>

@@ -117,7 +117,8 @@ namespace SP21
                 }
             }
 
-            if (_ozverinRemains == 0 || _ozverinRemains%Cat.PreyModeSkipStep != 0)
+            // ход кошек
+            if (_ozverinRemains == 0 || _ozverinRemains % Cat.PreyModeSkipStep != 0)
             {
                 foreach (var cat in _cats)
                 {
@@ -127,6 +128,7 @@ namespace SP21
                 }
             }
 
+            // ход мыши
             var direction = ConsoleView.GetMouseDirectionFromKeyboard();
             if (direction != null)
             {
@@ -147,9 +149,14 @@ namespace SP21
                 case '@':
                     IncreaseScore(5);
                     _view.DrawScore(_score);
-                    _ozverinRemains = _level.OzverinTime;
-                    _cats.Where(c => !_level.IsHome(c.Coord) && c.Mode != Cat.ModeEnum.Shadow)
-                        .ToList().ForEach(c => c.Mode = Cat.ModeEnum.Prey);
+                    _ozverinRemains = OzverinTime(_score);
+                    foreach (var cat in _cats)
+                    {
+                        if (cat.Mode == Cat.ModeEnum.Shadow || _level.IsHome(cat.Coord))
+                            continue;
+                        if (_score < 2900 || _random.Next(8) > 0)
+                            cat.Mode = Cat.ModeEnum.Prey;
+                    }
                     _catsEatenDuringCurrentOzverin = 0;
                     break;
                 case '.':
@@ -166,6 +173,21 @@ namespace SP21
                     break;
             }
             _cats.ForEach(cat => CheckCatch(cat, _mouse));
+        }
+
+        /// <summary>
+        /// Время действия озверина
+        /// </summary>
+        private int OzverinTime(int score)
+        {
+            if (score <  500) return 180;
+            if (score < 1000) return 144;
+            if (score < 1900) return 120;
+            if (score < 2000) return 108;
+            if (score < 2500) return 96;
+            if (score < 2800) return 84;
+            if (score < 2900) return 72;
+            return 54;
         }
 
         /// <summary>

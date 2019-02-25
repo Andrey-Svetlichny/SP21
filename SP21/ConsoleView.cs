@@ -8,6 +8,11 @@ namespace SP21
 {
     public class ConsoleView
     {
+        /// <summary>
+        /// Длительность шага, ms
+        /// </summary>
+        private const int StepTimeMs = 30;  //12
+
         public ConsoleView()
         {
             // Console setup
@@ -108,7 +113,7 @@ namespace SP21
 
         private void StepPause()
         {
-            Pause(12);
+            Pause(StepTimeMs);
         }
 
         private void Pause(int millisecondsTimeout)
@@ -140,6 +145,7 @@ namespace SP21
                     case ConsoleKey.UpArrow:
                         return Coordinate.Direction.Up;
                     case ConsoleKey.DownArrow:
+                    case ConsoleKey.Clear:
                         return Coordinate.Direction.Down;
                 }
             }
