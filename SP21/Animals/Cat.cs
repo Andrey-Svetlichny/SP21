@@ -65,8 +65,7 @@ namespace SP21.Animals
                         // кошка на точке выхода из дома
                         Dir = Level.GateOutDirection;
                     }
-                    else 
-                    if (Level.IsHome(Coord))
+                    else if (Level.IsHome(Coord))
                     {
                         // кошка в доме
                         SelectDirection(Coordinate.GetDirection(Coord, Level.GateOut));
@@ -82,20 +81,17 @@ namespace SP21.Animals
                     break;
 
                 case ModeEnum.Shadow:
-                    if (Coord == Level.GateIn)
+                    // тень кошки вышла из дома
+                    if (Coord == Level.GateIn && Dir == Coordinate.Direction.Up)
                     {
-                        // тень кошки на точке входа в дом
-                        Dir = Level.GateInDirection;
-                    }
-                    else if (Coord == Level.GateOut)
-                    {
-                        // тень кошки вошла в дом
                         Mode = ModeEnum.Normal;
                     }
-                    else
+                    // кошка вошла в дом
+                    if (Coord == Level.GateOut)
                     {
-                        SelectDirection(Coordinate.GetDirection(Coord, Level.GateIn));
+                        // ToDo при счете > 1000 сразу выходить
                     }
+                    SelectDirection(Coordinate.GetDirection(Coord, Level.Gate));
                     break;
             }
 
@@ -123,12 +119,21 @@ namespace SP21.Animals
         {
             // направления, в которых можно двигаться
             var availableDirs = Enum.GetValues(typeof (Coordinate.Direction)).OfType<Coordinate.Direction>()
-                .Where(CanMove).ToArray();
+                .Where(CanMove).ToList();
+
+            // в ремиже тени разрешено входить в дом и выходить из него
+            if (Mode == ModeEnum.Shadow)
+            {
+                if(Coord == Level.GateIn)
+                    availableDirs.Add(Coordinate.Direction.Down);
+                if(Coord == Level.GateOut)
+                    availableDirs.Add(Coordinate.Direction.Up);
+            }
 
             // исключаем направление, откуда только что пришли, если есть другие
-            if (Dir != null && availableDirs.Length > 1)
+            if (Dir != null && availableDirs.Count > 1)
             {
-                availableDirs = availableDirs.Except(new[] {((Coordinate.Direction) Dir).Reverse()}).ToArray();
+                availableDirs = availableDirs.Except(new[] {((Coordinate.Direction) Dir).Reverse()}).ToList();
             }
 
             // предпочтительные направления - в сторону цели 

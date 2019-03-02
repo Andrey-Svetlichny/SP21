@@ -29,6 +29,11 @@ namespace SP21
         public readonly Coordinate.Point GateIn = new Coordinate.Point(39, 9);
 
         /// <summary>
+        /// Дверь в дом.
+        /// </summary>
+        public readonly Coordinate.Point Gate = new Coordinate.Point(39, 10);
+
+        /// <summary>
         /// Точка выхода из дома
         /// </summary>
         public readonly Coordinate.Point GateOut = new Coordinate.Point(39, 11);
