@@ -118,16 +118,22 @@ namespace SP21.Animals
         private void SelectDirection(IEnumerable<Coordinate.Direction> targetDirs)
         {
             // направления, в которых можно двигаться
-            var availableDirs = Enum.GetValues(typeof (Coordinate.Direction)).OfType<Coordinate.Direction>()
+            var availableDirs = Enum.GetValues(typeof(Coordinate.Direction)).OfType<Coordinate.Direction>()
                 .Where(CanMove).ToList();
 
-            // в ремиже тени разрешено входить в дом и выходить из него
+            // в режиме тени разрешено входить в дом и выходить из него
             if (Mode == ModeEnum.Shadow)
             {
                 if(Coord == Level.GateIn)
                     availableDirs.Add(Coordinate.Direction.Down);
                 if(Coord == Level.GateOut)
                     availableDirs.Add(Coordinate.Direction.Up);
+            }
+
+            // если это тупик, можно проходить сквозь стены
+            if (availableDirs.Count == 1)
+            {
+                availableDirs = Enum.GetValues(typeof(Coordinate.Direction)).OfType<Coordinate.Direction>().ToList();
             }
 
             // исключаем направление, откуда только что пришли, если есть другие
