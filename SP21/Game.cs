@@ -122,7 +122,7 @@ namespace SP21
             {
                 foreach (var cat in _cats)
                 {
-                    cat.Step(_mouse.Coord);
+                    cat.Step(_mouse.Coord, _score);
                     _view.Draw(cat, _level);
                     CheckCatch(cat, _mouse);
                 }
@@ -180,14 +180,15 @@ namespace SP21
         /// </summary>
         private int OzverinTime(int score)
         {
-            if (score <  500) return 180;
-            if (score < 1000) return 144;
-            if (score < 1900) return 120;
-            if (score < 2000) return 108;
-            if (score < 2500) return 96;
-            if (score < 2800) return 84;
-            if (score < 2900) return 72;
-            return 54;
+            int catTime; // количество шагов кошки во время действия озверина
+            if (score < 1000) catTime = 144;
+            else if (score < 1900) catTime = 120;
+            else if (score < 2100) catTime = 108;
+            else if (score < 2400) catTime = 96;
+            else if (score < 2700) catTime = 84;
+            else if (score < 2900) catTime = 72;
+            else catTime = 54;
+            return catTime / 3 * 4;
         }
 
         /// <summary>

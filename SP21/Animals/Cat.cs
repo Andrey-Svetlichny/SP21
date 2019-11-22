@@ -55,7 +55,7 @@ namespace SP21.Animals
             Skin = SkinNornal;
         }
 
-        public void Step(Coordinate.Point mouseCoord)
+        public void Step(Coordinate.Point mouseCoord, int score)
         {
             switch (Mode)
             {
@@ -89,7 +89,12 @@ namespace SP21.Animals
                     // кошка вошла в дом
                     if (Coord == Level.GateOut)
                     {
-                        // ToDo при счете > 1000 сразу выходить
+                        if(score > 1000)
+                        {
+                            // при счете > 1000 сразу выходить из дома
+                            Dir = Coordinate.Direction.Up;
+                            break;
+                        }
                     }
                     SelectDirection(Coordinate.GetDirection(Coord, Level.Gate));
                     break;

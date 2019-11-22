@@ -8,9 +8,21 @@ SP21 (PDP-11) game replica
 
 **Font**
 
+### DVK
+
 Size: 26
 
 Font: Courier New
+
+Bold: true
+
+### pdp11
+
+Size: 28
+
+Font: Consolas
+
+BgColor: 170; 204; 221;
 
 **Layout**
 
