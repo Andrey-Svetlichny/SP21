@@ -13,6 +13,7 @@ namespace SP21
         readonly ScoreTable _scoreTable;
         List<Cat> _cats;
         Mouse _mouse;
+        Coordinate.Direction? _mouseDirection;
         int _score;
         int _breadcrumbs;
         int _catsEatenDuringCurrentOzverin;
@@ -55,6 +56,8 @@ namespace SP21
                 InitBonus();
                 InitAnimals();
                 _view.DrawLevel(_level);
+                _view.DrawScore(_score);
+                _mouseDirection = ConsoleView.GetMouseDirectionFromKeyboard();
                 foreach (var cat in _cats)
                 {
                     _view.Draw(cat, _level);
@@ -92,7 +95,7 @@ namespace SP21
             if (_bonus == 0 && --_bonusRemains == 0)
             {
                 // время показать бонус
-                _bonus = 15 * (_score / 500 + 1);
+                _bonus = 15 * Math.Max(1, Math.Min(_score / 450, 6));
                 _bonusRemains = 120;
                 _level.SetBonus(_bonus);
                 _view.DrawBonus(_level);
@@ -129,12 +132,12 @@ namespace SP21
             }
 
             // ход мыши
-            var direction = ConsoleView.GetMouseDirectionFromKeyboard();
-            if (direction != null)
+            if (_mouseDirection != null)
             {
-                _mouse.WantMove(direction.Value);
+                _mouse.WantMove(_mouseDirection.Value);
             }
             _mouse.Step();
+            _mouseDirection = ConsoleView.GetMouseDirectionFromKeyboard();
             _view.Draw(_mouse, _level);
             var item = _level.Take(
                 _mouse.Dir == Coordinate.Direction.Left ? _mouse.Coord - 1 :

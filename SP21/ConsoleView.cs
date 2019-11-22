@@ -11,7 +11,7 @@ namespace SP21
         /// <summary>
         /// Длительность шага, ms
         /// </summary>
-        private const int StepTimeMs = 30;  //12
+        private const int StepTimeMs = 30;
 
         public ConsoleView()
         {
