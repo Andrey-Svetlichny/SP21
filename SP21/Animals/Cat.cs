@@ -42,11 +42,17 @@ namespace SP21.Animals
                 {
                     _mode = value;
                     Dir = null;
+                    if (value != ModeEnum.Prey)
+                    {
+                        TossBreadCrumbs = false;
+                    }
                 }
             }
         }
 
         private ModeEnum _mode;
+
+        public bool TossBreadCrumbs { get; set; }
 
         public Cat()
         {

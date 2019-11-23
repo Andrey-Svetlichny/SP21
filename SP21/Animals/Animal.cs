@@ -20,9 +20,9 @@ namespace SP21.Animals
             switch (direction)
             {
                 case Coordinate.Direction.Left:
-                    return allowedChars.Contains(Level[Coord - 2]);
+                    return allowedChars.Contains(Level.Get(Coord - 2));
                 case Coordinate.Direction.Right:
-                    return allowedChars.Contains(Level[Coord + 2]);
+                    return allowedChars.Contains(Level.Get(Coord + 2));
                 case Coordinate.Direction.Up:
                     return Level.Get(Coord.Add(-1, -1), 3)
                         .All(c => allowedChars.Any(allowed => c == allowed));

@@ -60,9 +60,9 @@ namespace SP21
                 _mouseDirection = ConsoleView.GetMouseDirectionFromKeyboard();
                 foreach (var cat in _cats)
                 {
-                    _view.Draw(cat, _level);
+                    _view.Draw(cat, _level, false);
                 }
-                _view.Draw(_mouse, _level);
+                _view.Draw(_mouse, _level, false);
 
                 while (_level.Lives > 0)
                 {
@@ -126,7 +126,7 @@ namespace SP21
                 foreach (var cat in _cats)
                 {
                     cat.Step(_mouse.Coord, _score);
-                    _view.Draw(cat, _level);
+                    _view.Draw(cat, _level, cat.TossBreadCrumbs);
                     CheckCatch(cat, _mouse);
                 }
             }
@@ -138,7 +138,7 @@ namespace SP21
             }
             _mouse.Step();
             _mouseDirection = ConsoleView.GetMouseDirectionFromKeyboard();
-            _view.Draw(_mouse, _level);
+            _view.Draw(_mouse, _level, false);
             var item = _level.Take(
                 _mouse.Dir == Coordinate.Direction.Left ? _mouse.Coord - 1 :
                 _mouse.Dir == Coordinate.Direction.Right ? _mouse.Coord + 1 : _mouse.Coord);
@@ -158,8 +158,11 @@ namespace SP21
                         if (cat.Mode == Cat.ModeEnum.Shadow || _level.IsHome(cat.Coord))
                             continue;
                         if (_score < 2900 || _random.Next(8) > 0)
+                        {
                             cat.Mode = Cat.ModeEnum.Prey;
+                        }
                     }
+                    _cats[0].TossBreadCrumbs = _random.Next(16) > 0;
                     _catsEatenDuringCurrentOzverin = 0;
                     break;
                 case '.':

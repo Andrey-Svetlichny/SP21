@@ -62,7 +62,16 @@ namespace SP21
         const string ResLevel = "SP21.Levels.Level{0}.txt";
 
         private int _levelNum;
+
+        /// <summary>
+        /// Текущее состояние уровня (стены, крошки, озверин)
+        /// </summary>
         char[][] _lines;
+
+        /// <summary>
+        /// Первоначальное состояние уровня (стены, крошки, озверин)
+        /// </summary>
+        char[][] _linesOrig;
 
         private int _lives;
 
@@ -95,27 +104,46 @@ namespace SP21
             }
         }
 
-        public char this[Coordinate.Point p]
+        public char Get(int x, int y)
         {
-            get
-            {
-                return _lines[p.Y][p.X];
-            }
-            set
-            {
-                _lines[p.Y][p.X] = value;
-            }
+            return _lines[y][x];
+        }
+
+        public char Get(Coordinate.Point p)
+        {
+            return _lines[p.Y][p.X];
+        }
+
+        public char GetOrig(Coordinate.Point p)
+        {
+            return _linesOrig[p.Y][p.X];
+        }
+
+        public void Set(Coordinate.Point p, char value)
+        {
+            _lines[p.Y][p.X] = value;
         }
 
         public string Get(Coordinate.Point point, int count)
         {
-            string ret = "";
+            var result = "";
             for (int i = 0; i < count; i++)
             {
-                ret += this[point];
+                result += _lines[point.Y][point.X];
                 point = point + 1;
             }
-            return ret;
+            return result;
+        }
+
+        public string GetOrig(Coordinate.Point point, int count)
+        {
+            var result = "";
+            for (int i = 0; i < count; i++)
+            {
+                result += _linesOrig[point.Y][point.X];
+                point = point + 1;
+            }
+            return result;
         }
 
         /// <summary>
@@ -131,8 +159,8 @@ namespace SP21
         /// </summary>
         public char Take(Coordinate.Point point)
         {
-            var ret = this[point];
-            this[point] = ' ';
+            var ret = Get(point);
+            Set(point, ' ');
             return ret;
         }
 
@@ -148,8 +176,9 @@ namespace SP21
             {
                 text = reader.ReadToEnd();
             }
-            _lines = text.Split(new[] { "\r\n" }, StringSplitOptions.None)
+            _linesOrig = text.Split(new[] { "\r\n" }, StringSplitOptions.None)
                 .Select(l => l.PadRight(80).ToCharArray()).ToArray();
+            _lines = _linesOrig.Select(o => (char[])o.Clone()).ToArray();
 
             Breadcrumbs = text.Count(f => f == '.');
         }
@@ -161,7 +190,7 @@ namespace SP21
         {
             for (int i = 0; i < 10; i++)
             {
-                this[new Coordinate.Point(79, i)] = i < _lives - 1 ? 'X' : ' ';
+                Set(new Coordinate.Point(79, i), i < _lives - 1 ? 'X' : ' ');
             }
         }
 
@@ -169,9 +198,9 @@ namespace SP21
         {
             var s =  bonus == 0 ? "   " : $"{bonus / 10}*{bonus % 10}";
 
-            this[BonusCoordinate] = s[0];
-            this[BonusCoordinate + 1] = s[1];
-            this[BonusCoordinate + 2] = s[2];
+            Set(BonusCoordinate, s[0]);
+            Set(BonusCoordinate + 1, s[1]);
+            Set(BonusCoordinate + 2, s[2]);
         }
     }
 }

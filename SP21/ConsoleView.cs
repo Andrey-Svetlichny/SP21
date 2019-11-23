@@ -46,7 +46,7 @@ namespace SP21
                     if(x == Coordinate.MaxX -1 && y == Coordinate.MaxY -1)
                         continue; // prevent scrolling on termilal 80x24
                     Console.SetCursorPosition(x, y);
-                    Console.Write(level[new Coordinate.Point(x, y)]);
+                    Console.Write(level.Get(x, y));
                     Pause(1);
                 }
         }
@@ -64,7 +64,26 @@ namespace SP21
             Console.Write(s);
         }
 
-        public void Draw(Animal animal, Level level)
+        private string LevelGet(Level level, Coordinate.Point point, int count, bool tossBreadCrumbs)
+        {
+            if (!tossBreadCrumbs)
+            {
+                return level.Get(point, count);
+            }
+
+            var result = level.Get(point, count).ToCharArray();
+            var orig = level.GetOrig(point, count);
+            for (int i = 0; i < count; i++)
+            {
+                if (orig[i] == '.')
+                {
+                    result[i] = '.';
+                }
+            }
+            return new string(result);
+        }
+
+        public void Draw(Animal animal, Level level, bool tossBreadCrumbs)
         {
             switch (animal.Dir)
             {
@@ -72,17 +91,17 @@ namespace SP21
                     Draw(animal.Coord - 1, animal.Skin);
                     break;
                 case Coordinate.Direction.Left:
-                    Draw(animal.Coord - 1, animal.Skin + level[animal.Coord + 2]);
+                    Draw(animal.Coord - 1, animal.Skin + LevelGet(level, animal.Coord + 2, 1, tossBreadCrumbs));
                     break;
                 case Coordinate.Direction.Right:
-                    Draw(animal.Coord - 2, level[animal.Coord - 2] + animal.Skin);
+                    Draw(animal.Coord - 2, LevelGet(level, animal.Coord - 2, 1, tossBreadCrumbs) + animal.Skin);
                     break;
                 case Coordinate.Direction.Up:
-                    Draw(animal.Coord.Add(-1, +1), level.Get(animal.Coord.Add(-1, +1), 3));
+                    Draw(animal.Coord.Add(-1, +1), LevelGet(level, animal.Coord.Add(-1, +1), 3, tossBreadCrumbs));
                     Draw(animal.Coord - 1, animal.Skin);
                     break;
                 case Coordinate.Direction.Down:
-                    Draw(animal.Coord.Add(-1, -1), level.Get(animal.Coord.Add(-1, -1), 3));
+                    Draw(animal.Coord.Add(-1, -1), LevelGet(level, animal.Coord.Add(-1, -1), 3, tossBreadCrumbs));
                     Draw(animal.Coord - 1, animal.Skin);
                     break;
             }
